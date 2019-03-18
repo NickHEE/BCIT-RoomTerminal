@@ -60,13 +60,16 @@ class ScheduleUI(QtWidgets.QWidget):
 class LaunchUI(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.clock = DigitalClock()
-        self.clock.move(0,0)
+        self.layout = QtWidgets.QGridLayout()
+        self.clock = DigitalClock(5, self)
+        #self.clock = QtWidgets.QLCDNumber(7, self)
+        #self.clock.display('1000')
+        self.layout.addWidget(self.clock)
 
 
 class DigitalClock(QtWidgets.QLCDNumber):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,numDigits, parent=None):
+        super().__init__(numDigits, parent)
         self.showTime()
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.showTime)
@@ -78,10 +81,6 @@ class DigitalClock(QtWidgets.QLCDNumber):
         time = QtCore.QTime.currentTime()
         text = time.toString('hh:mm')
         self.display(text)
-
-
-
-
 
 
 if __name__ == "__main__":
