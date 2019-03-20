@@ -12,7 +12,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.roomSchedule = self.getSchedule()
 
         self.schedulePage = ScheduleUI(self.roomSchedule)
-        self.launchPage = LaunchUI()
+        self.launchPage = LaunchUI("2519", self)
 
         self.startLaunchUI()
 
@@ -58,17 +58,31 @@ class ScheduleUI(QtWidgets.QWidget):
 
 
 class LaunchUI(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, room, mainW):
         super().__init__()
-        self.layout = QtWidgets.QGridLayout()
+        self.layout = QtWidgets.QVBoxLayout()
+        self.room = QtWidgets.QLabel("SW1-" + room,)
+        self.room.setFont(QtGui.QFont('Times', 24))
         self.clock = DigitalClock(5, self)
+
+        self.bookNowBtn = QtWidgets.QPushButton("Book this room")
+        self.viewBookingsBtn = QtWidgets.QPushButton("View room bookings")
+        self.viewBookingsBtn.clicked.connect(mainW.startScheduleUI)
+        h_box = QtWidgets.QHBoxLayout()
+        h_box.addWidget(self.bookNowBtn)
+        h_box.addWidget(self.viewBookingsBtn)
+
+        self.layout.addWidget(self.room, 1, alignment=QtCore.Qt.AlignCenter, )
+        self.layout.addWidget(self.clock, 4)
+        self.layout.addLayout(h_box)
+
         #self.clock = QtWidgets.QLCDNumber(7, self)
         #self.clock.display('1000')
-        self.layout.addWidget(self.clock)
+        self.setLayout(self.layout)
 
 
 class DigitalClock(QtWidgets.QLCDNumber):
-    def __init__(self,numDigits, parent=None):
+    def __init__(self, numDigits, parent=None):
         super().__init__(numDigits, parent)
         self.showTime()
         timer = QtCore.QTimer(self)
