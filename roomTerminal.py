@@ -3,8 +3,7 @@ import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class MainWindow(QtWidgets.QMainWindow):
-
+class MainWindow(QtWidgets.QStackedWidget):
 
     def __init__(self):
         super().__init__()
@@ -13,6 +12,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.schedulePage = ScheduleUI(self.roomSchedule)
         self.launchPage = LaunchUI("2519", self)
+        self.calendarPage = CalendarUI(self)
+        self.addWidget(self.launchPage)
+        self.addWidget(self.calendarPage)
+        self.addWidget(self.schedulePage)
 
         self.startLaunchUI()
 
@@ -24,13 +27,19 @@ class MainWindow(QtWidgets.QMainWindow):
         return table
 
     def startScheduleUI(self):
-        self.setCentralWidget(self.schedulePage)
+        #self.setCentralWidget(self.schedulePage)
+        self.setCurrentWidget(self.schedulePage)
+        self.show()
+
+    def startCalendarUI(self):
+        #self.setCentralWidget(self.calendarPage)
+        self.setCurrentWidget(self.calendarPage)
         self.show()
 
     def startLaunchUI(self):
-        self.setCentralWidget(self.launchPage)
+        #self.setCentralWidget(self.launchPage)
+        self.setCurrentWidget(self.launchPage)
         self.show()
-
 
 
 class ScheduleUI(QtWidgets.QWidget):
@@ -57,6 +66,27 @@ class ScheduleUI(QtWidgets.QWidget):
                 self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
 
 
+class CalendarUI(QtWidgets.QWidget):
+    def __init__(self, mainW):
+        super().__init__()
+
+        self.calendar = QtWidgets.QCalendarWidget(self)
+        self.calendar.clicked[QtCore.QDate].connect(self.showDate)
+        self.backBtn = QtWidgets.QPushButton('Back')
+        self.backBtn.clicked.connect(mainW.startLaunchUI)
+
+        self.layout = QtWidgets.QVBoxLayout()
+        h_box = QtWidgets.QHBoxLayout()
+        h_box.addWidget(self.backBtn)
+        h_box.addStretch()
+        self.layout.addWidget(self.calendar, 4)
+        self.layout.addLayout(h_box)
+        self.setLayout(self.layout)
+
+    def showDate(self, date):
+        print(date)
+
+
 class LaunchUI(QtWidgets.QWidget):
     def __init__(self, room, mainW):
         super().__init__()
@@ -67,7 +97,7 @@ class LaunchUI(QtWidgets.QWidget):
 
         self.bookNowBtn = QtWidgets.QPushButton("Book this room")
         self.viewBookingsBtn = QtWidgets.QPushButton("View room bookings")
-        self.viewBookingsBtn.clicked.connect(mainW.startScheduleUI)
+        self.viewBookingsBtn.clicked.connect(mainW.startCalendarUI)
         h_box = QtWidgets.QHBoxLayout()
         h_box.addWidget(self.bookNowBtn)
         h_box.addWidget(self.viewBookingsBtn)
