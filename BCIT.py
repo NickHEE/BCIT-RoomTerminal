@@ -1,9 +1,11 @@
-import requests
+#import requests
 import json
 import re
 
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+import pandas as pd
+import lxml
 
 
 rooms = {
@@ -22,7 +24,7 @@ rooms = {
     38: 'SW1-2519'
 }
 
-
+"""
 class BCITStudySession:
     def __init__(self,
                  urls,
@@ -85,8 +87,9 @@ class BCITStudySession:
         else:
             self.session.close()
             return False
+"""
 
-
+"""
 class Booking:
     def __init__(self, date, length, cell, account=('', '')):
         print(date)
@@ -116,6 +119,20 @@ class Booking:
         bookTemplate['end_seconds'] = self.endSeconds
 
         return bookTemplate
+"""
+
+
+def QtGetSchedule(date):
+
+    url = 'https://studyrooms.lib.bcit.ca/day.php?year={}&month={}&day={}&area=4'.format(date.year(),
+                                                                                         date.month(),
+                                                                                         date.day())
+    print(url)
+    table = pd.read_html(url, attrs={'id': 'day_main'})[0]
+    table = table.drop(['Room:.1'], axis=1)
+    table = table.drop([13], axis=0)
+    return table
+
 
 
 

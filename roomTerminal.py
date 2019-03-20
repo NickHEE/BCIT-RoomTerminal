@@ -1,5 +1,5 @@
-import sys, lxml
-import pandas as pd
+import sys
+import BCIT
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -8,9 +8,8 @@ class MainWindow(QtWidgets.QStackedWidget):
     def __init__(self):
         super().__init__()
         self.resize(480, 320)
-        self.roomSchedule = self.getSchedule()
 
-        self.schedulePage = ScheduleUI(self.roomSchedule)
+        self.schedulePage = ScheduleUI(self)
         self.launchPage = LaunchUI("2519", self)
         self.calendarPage = CalendarUI(self)
         self.addWidget(self.launchPage)
@@ -19,48 +18,46 @@ class MainWindow(QtWidgets.QStackedWidget):
 
         self.startLaunchUI()
 
-    def getSchedule(self):
-        url = 'https://studyrooms.lib.bcit.ca/day.php?year=2019&month=3&day=13&area=4'
-        table = pd.read_html(url, attrs={'id': 'day_main'})[0]
-        table = table.drop(['Room:.1'], axis=1)
-        table = table.drop([13], axis=0)
-        return table
-
-    def startScheduleUI(self):
-        #self.setCentralWidget(self.schedulePage)
+    def startScheduleUI(self, date):
+        self.schedulePage.updateTable(date)
         self.setCurrentWidget(self.schedulePage)
         self.show()
 
     def startCalendarUI(self):
-        #self.setCentralWidget(self.calendarPage)
         self.setCurrentWidget(self.calendarPage)
         self.show()
 
     def startLaunchUI(self):
-        #self.setCentralWidget(self.launchPage)
         self.setCurrentWidget(self.launchPage)
         self.show()
 
 
 class ScheduleUI(QtWidgets.QWidget):
-    def __init__(self, roomSchedule):
+    def __init__(self, mainW):
         super().__init__()
 
-        self.roomSchedule = roomSchedule
-        self.layout = QtWidgets.QGridLayout()
-        self.setLayout(self.layout)
+        self.layout = QtWidgets.QVBoxLayout()
+        h_box = QtWidgets.QHBoxLayout()
 
+
+        self.backBtn = QtWidgets.QPushButton("Back")
+        self.backBtn.clicked.connect(mainW.startCalendarUI)
         self.roomScheduleTable = QtWidgets.QTableWidget()
         self.roomScheduleTable.setRowCount(13)
         self.roomScheduleTable.setColumnCount(34)
         self.roomScheduleTable.horizontalHeader().setDefaultSectionSize(45)
+
+        self.layout.addWidget(self.roomScheduleTable)
+        h_box.addWidget(self.backBtn)
+        h_box.addStretch()
+        self.layout.addLayout(h_box)
+        self.setLayout(self.layout)
+
+    def updateTable(self, date):
+        self.roomSchedule = BCIT.QtGetSchedule(date)
         self.roomScheduleTable.setHorizontalHeaderLabels(self.roomSchedule.keys()[1:])
         self.roomScheduleTable.setVerticalHeaderLabels(self.roomSchedule['Room:'])
 
-        self.updateTable()
-        self.layout.addWidget(self.roomScheduleTable)
-
-    def updateTable(self):
         for row in range(0, self.roomScheduleTable.rowCount()):
             for col, roomStatus in enumerate(self.roomSchedule.iloc[row][1:]):
                 self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
@@ -71,7 +68,7 @@ class CalendarUI(QtWidgets.QWidget):
         super().__init__()
 
         self.calendar = QtWidgets.QCalendarWidget(self)
-        self.calendar.clicked[QtCore.QDate].connect(self.showDate)
+        self.calendar.clicked[QtCore.QDate].connect(mainW.startScheduleUI)
         self.backBtn = QtWidgets.QPushButton('Back')
         self.backBtn.clicked.connect(mainW.startLaunchUI)
 
