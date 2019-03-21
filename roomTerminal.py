@@ -39,7 +39,6 @@ class ScheduleUI(QtWidgets.QWidget):
         self.layout = QtWidgets.QVBoxLayout()
         h_box = QtWidgets.QHBoxLayout()
 
-
         self.backBtn = QtWidgets.QPushButton("Back")
         self.backBtn.clicked.connect(mainW.startCalendarUI)
         self.roomScheduleTable = QtWidgets.QTableWidget()
@@ -60,7 +59,12 @@ class ScheduleUI(QtWidgets.QWidget):
 
         for row in range(0, self.roomScheduleTable.rowCount()):
             for col, roomStatus in enumerate(self.roomSchedule.iloc[row][1:]):
-                self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
+                if str(roomStatus) == 'nan':
+                    self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(''))
+                    self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(130, 213, 130))
+                else:
+                    self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
+                    self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(255, 204, 153))
 
 
 class CalendarUI(QtWidgets.QWidget):
