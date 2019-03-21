@@ -127,9 +127,8 @@ def QtGetSchedule(date):
     url = 'https://studyrooms.lib.bcit.ca/day.php?year={}&month={}&day={}&area=4'.format(date.year(),
                                                                                          date.month(),
                                                                                          date.day())
-    table = pd.read_html(url, attrs={'id': 'day_main'})[0]
+    table = pd.read_html(url, attrs={'id': 'day_main'}, skiprows=[14], index_col=0)[0]
     table = table.drop(['Room:.1'], axis=1)
-    table = table.drop([13], axis=0)
     return table
 
 

@@ -54,11 +54,11 @@ class ScheduleUI(QtWidgets.QWidget):
 
     def updateTable(self, date):
         self.roomSchedule = BCIT.QtGetSchedule(date)
-        self.roomScheduleTable.setHorizontalHeaderLabels(self.roomSchedule.keys()[1:])
-        self.roomScheduleTable.setVerticalHeaderLabels(self.roomSchedule['Room:'])
+        self.roomScheduleTable.setHorizontalHeaderLabels(self.roomSchedule.keys())
+        self.roomScheduleTable.setVerticalHeaderLabels(self.roomSchedule.index.values)
 
         for row in range(0, self.roomScheduleTable.rowCount()):
-            for col, roomStatus in enumerate(self.roomSchedule.iloc[row][1:]):
+            for col, roomStatus in enumerate(self.roomSchedule.iloc[row]):
                 if str(roomStatus) == 'nan':
                     self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(''))
                     self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(130, 213, 130))
