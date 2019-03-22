@@ -12,14 +12,20 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.schedulePage = ScheduleUI(self)
         self.launchPage = LaunchUI("2519", self)
         self.calendarPage = CalendarUI(self)
+        self.loginPage = LoginUI(self)
         self.addWidget(self.launchPage)
         self.addWidget(self.calendarPage)
         self.addWidget(self.schedulePage)
+        self.addWidget(self.loginPage)
 
         self.startLaunchUI()
 
     def startScheduleUI(self, date):
         self.schedulePage.updateTable(date)
+        self.setCurrentWidget(self.schedulePage)
+        self.show()
+
+    def backToScheduleUI(self):
         self.setCurrentWidget(self.schedulePage)
         self.show()
 
@@ -30,6 +36,11 @@ class MainWindow(QtWidgets.QStackedWidget):
     def startLaunchUI(self):
         self.setCurrentWidget(self.launchPage)
         self.show()
+
+    def startLoginUI(self, booking):
+        self.setCurrentWidget(self.loginPage)
+        self.loginPage.booking = booking
+        print(booking)
 
 
 class ScheduleUI(QtWidgets.QWidget):
@@ -42,9 +53,13 @@ class ScheduleUI(QtWidgets.QWidget):
         self.backBtn = QtWidgets.QPushButton("Back")
         self.backBtn.clicked.connect(mainW.startCalendarUI)
         self.roomScheduleTable = QtWidgets.QTableWidget()
+        self.roomScheduleTable.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.roomScheduleTable.setRowCount(13)
         self.roomScheduleTable.setColumnCount(34)
         self.roomScheduleTable.horizontalHeader().setDefaultSectionSize(45)
+        self.roomScheduleTable.itemClicked.connect(
+                   lambda item: mainW.startLoginUI((self.roomSchedule.iloc[item.row()].name,
+                                                    self.roomSchedule.iloc[item.row()].index[item.column()])))
 
         self.layout.addWidget(self.roomScheduleTable)
         h_box.addWidget(self.backBtn)
@@ -88,6 +103,42 @@ class CalendarUI(QtWidgets.QWidget):
         print(date)
 
 
+class LoginUI(QtWidgets.QWidget):
+    def __init__(self, mainW):
+        super().__init__()
+        self.booking = None
+        self.layout = QtWidgets.QVBoxLayout()
+        h_box = QtWidgets.QHBoxLayout()
+        h_box2 = QtWidgets.QHBoxLayout()
+        v_boxInner = QtWidgets.QVBoxLayout()
+
+        self.studentNumTxt = QtWidgets.QLabel('Student Number')
+        self.studentNumBox = QtWidgets.QLineEdit()
+        self.passwordTxt = QtWidgets.QLabel('Password')
+        self.passwordBox = QtWidgets.QLineEdit()
+        self.passwordBox.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.loginBtn = QtWidgets.QPushButton('Login')
+        v_boxInner.addWidget(self.studentNumTxt, 1 ,alignment=QtCore.Qt.AlignCenter)
+        v_boxInner.addWidget(self.studentNumBox, 3)
+        v_boxInner.addWidget(self.passwordTxt, 1, alignment=QtCore.Qt.AlignCenter)
+        v_boxInner.addWidget(self.passwordBox, 3)
+        v_boxInner.addWidget(self.loginBtn)
+        h_box.addLayout(v_boxInner, 1)
+
+        self.tapImg = QtGui.QPixmap('tap.png')
+        self.tapImgLbl = QtWidgets.QLabel()
+        self.tapImgLbl.setPixmap(self.tapImg)
+        h_box.addWidget(self.tapImgLbl, 1, alignment=QtCore.Qt.AlignCenter)
+        self.layout.addLayout(h_box)
+
+        self.backBtn = QtWidgets.QPushButton("Back")
+        self.backBtn.clicked.connect(mainW.backToScheduleUI)
+        h_box2.addWidget(self.backBtn)
+        h_box2.addStretch()
+        self.layout.addLayout(h_box2)
+        self.setLayout(self.layout)
+
+
 class LaunchUI(QtWidgets.QWidget):
     def __init__(self, room, mainW):
         super().__init__()
@@ -103,7 +154,7 @@ class LaunchUI(QtWidgets.QWidget):
         h_box.addWidget(self.bookNowBtn)
         h_box.addWidget(self.viewBookingsBtn)
 
-        self.layout.addWidget(self.room, 1, alignment=QtCore.Qt.AlignCenter, )
+        self.layout.addWidget(self.room, 1, alignment=QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.clock, 4)
         self.layout.addLayout(h_box)
 
