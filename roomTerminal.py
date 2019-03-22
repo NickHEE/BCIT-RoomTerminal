@@ -80,7 +80,7 @@ class ScheduleUI(QtWidgets.QWidget):
                 else:
                     self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
                     self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(255, 204, 153))
-
+#hi
 
 class CalendarUI(QtWidgets.QWidget):
     def __init__(self, mainW):
