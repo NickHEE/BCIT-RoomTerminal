@@ -129,7 +129,8 @@ class LoginUI(QtWidgets.QWidget):
         self.tapImgLbl = QtWidgets.QLabel()
         self.tapImgLbl.setPixmap(self.tapImg)
         h_box.addWidget(self.tapImgLbl, 1, alignment=QtCore.Qt.AlignCenter)
-        self.layout.addLayout(h_box)
+        self.layout.addLayout(h_box, 5)
+        self.layout.addStretch(1)
 
         self.backBtn = QtWidgets.QPushButton("Back")
         self.backBtn.clicked.connect(mainW.backToScheduleUI)
