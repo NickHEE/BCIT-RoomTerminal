@@ -9,10 +9,12 @@ class MainWindow(QtWidgets.QStackedWidget):
         super().__init__()
         self.resize(480, 320)
 
+        self.booking = None
         self.schedulePage = ScheduleUI(self)
         self.launchPage = LaunchUI("2519", self)
         self.calendarPage = CalendarUI(self)
         self.loginPage = LoginUI(self)
+        self.bookPage = BookUI(self)
         self.addWidget(self.launchPage)
         self.addWidget(self.calendarPage)
         self.addWidget(self.schedulePage)
@@ -23,6 +25,7 @@ class MainWindow(QtWidgets.QStackedWidget):
     def startScheduleUI(self, date):
         self.schedulePage.updateTable(date)
         self.setCurrentWidget(self.schedulePage)
+        print(date)
         self.show()
 
     def backToScheduleUI(self):
@@ -42,6 +45,10 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.loginPage.booking = booking
         print(booking)
 
+    def startBookUI(self, booking):
+        self.setCurrentWidget(self.bookPage)
+        self.bookPage.booking = booking
+
 
 class ScheduleUI(QtWidgets.QWidget):
     def __init__(self, mainW):
@@ -58,7 +65,7 @@ class ScheduleUI(QtWidgets.QWidget):
         self.roomScheduleTable.setColumnCount(34)
         self.roomScheduleTable.horizontalHeader().setDefaultSectionSize(45)
         self.roomScheduleTable.itemClicked.connect(
-                   lambda item: mainW.startLoginUI((self.roomSchedule.iloc[item.row()].name,
+                   lambda item: mainW.startLoginUI((self.roomSchedule.iloc[item.row()].name[0:4],
                                                     self.roomSchedule.iloc[item.row()].index[item.column()])))
 
         self.layout.addWidget(self.roomScheduleTable)
@@ -80,7 +87,7 @@ class ScheduleUI(QtWidgets.QWidget):
                 else:
                     self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
                     self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(255, 204, 153))
-#hi
+
 
 class CalendarUI(QtWidgets.QWidget):
     def __init__(self, mainW):
@@ -139,6 +146,37 @@ class LoginUI(QtWidgets.QWidget):
         self.layout.addLayout(h_box2)
         self.setLayout(self.layout)
 
+
+class BookUI(QtWidgets.QWidget):
+    def __init__(self, mainW):
+        super().__init__()
+        self.booking = None
+        self.layout = QtWidgets.QVBoxLayout()
+        h_box = QtWidgets.QHBoxLayout()
+        v_boxL = QtWidgets.QVBoxLayout()
+        v_boxR = QtWidgets.QVBoxLayout()
+
+        self.bookingLbl = QtWidgets.QLabel('SW1-2519-8:30')
+        self.nameLbl = QtWidgets.QLabel('Optional Name:')
+        self.nameBox = QtWidgets.QLineEdit('roomTerminal')
+        self.bookLengthLbl = QtWidgets.QLabel("Book For:")
+        self.bookLengthDropDown = QtWidgets.QComboBox()
+        self.bookLengthDropDown.addItem("0:30")
+        self.bookBtn = QtWidgets.QPushButton('Book')
+
+        self.layout.addWidget(self.bookingLbl)
+        self.layout.addLayout(h_box)
+        h_box.addLayout(v_boxL)
+        v_boxL.addWidget(self.nameLbl)
+        v_boxL.addWidget(self.nameBox)
+        h_box.addLayout(v_boxR)
+        v_boxR.addWidget(self.bookLengthLbl)
+        v_boxR.addWidget(self.bookLengthDropDown)
+        self.layout.addWidget(self.bookBtn, alignment=QtCore.Qt.AlignCenter)
+        self.setLayout(self.layout)
+
+        def setLabelTxt(booking):
+            self.bookingLbl.setText('SW1-{}-{}'.format(booking[0], booking[1]))
 
 class LaunchUI(QtWidgets.QWidget):
     def __init__(self, room, mainW):
