@@ -24,7 +24,8 @@ module baud_tick_gen(
 			Acc <= Acc[AccWidth-1:0] + Inc[AccWidth:0]; 
 		else 
 			Acc <= Inc[AccWidth:0];
+	end
 
 	assign tick = Acc[AccWidth];
 
-	endmodule
+endmodule

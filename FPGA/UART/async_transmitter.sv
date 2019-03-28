@@ -6,7 +6,7 @@
 // TX: 8-bit data, 2 stop, no-parity
 // RX: 8-bit data, 1 stop, no-parity (the receiver can accept more stop bits of course)
 
-//`define SIMULATION   // in this mode, TX outputs one bit per clock cycle
+`define SIMULATION   // in this mode, TX outputs one bit per clock cycle
                        // and RX receives one bit per clock cycle (for fast simulations)
 
 ////////////////////////////////////////////////////////
@@ -31,9 +31,11 @@ module async_transmitter(
 	`endif
 
 	logic [3:0] TxD_state = 0;
-	logic TxD_ready = (TxD_state==0);
-	assign TxD_busy = ~TxD_ready;
+	logic TxD_ready; 
 	logic [7:0] TxD_shift = 0;
+	
+	assign TxD_ready = (TxD_state==0);
+	assign TxD_busy = ~TxD_ready;
 	
 	always @(posedge clk)
 	begin
