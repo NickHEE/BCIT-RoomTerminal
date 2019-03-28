@@ -1,6 +1,7 @@
 import sys
 import BCIT
 from PyQt5 import QtCore, QtGui, QtWidgets
+from datetime import datetime, timedelta
 
 
 class MainWindow(QtWidgets.QStackedWidget):
@@ -64,9 +65,7 @@ class ScheduleUI(QtWidgets.QWidget):
         self.roomScheduleTable.setRowCount(13)
         self.roomScheduleTable.setColumnCount(34)
         self.roomScheduleTable.horizontalHeader().setDefaultSectionSize(45)
-        self.roomScheduleTable.itemClicked.connect(
-                   lambda item: mainW.startLoginUI((self.roomSchedule.iloc[item.row()].name[0:4],
-                                                    self.roomSchedule.iloc[item.row()].index[item.column()])))
+        self.roomScheduleTable.itemClicked.connect(lambda item: self.onClick(item, mainW))
 
         self.layout.addWidget(self.roomScheduleTable)
         h_box.addWidget(self.backBtn)
@@ -74,20 +73,44 @@ class ScheduleUI(QtWidgets.QWidget):
         self.layout.addLayout(h_box)
         self.setLayout(self.layout)
 
+    def onClick(self, item, mainW):
+        if item.flags() & QtCore.Qt.ItemIsEnabled:
+            mainW.startLoginUI((self.roomSchedule.iloc[item.row()].name[0:4],
+                                self.roomSchedule.iloc[item.row()].index[item.column()]))
+        else:
+            pass
+
     def updateTable(self, date):
+        dNow = QtCore.QDate.currentDate()
+        tNow = datetime.now()
         self.roomSchedule = BCIT.QtGetSchedule(date)
         self.roomScheduleTable.setHorizontalHeaderLabels(self.roomSchedule.keys())
         self.roomScheduleTable.setVerticalHeaderLabels(self.roomSchedule.index.values)
 
         for row in range(0, self.roomScheduleTable.rowCount()):
             for col, roomStatus in enumerate(self.roomSchedule.iloc[row]):
-                if str(roomStatus) == 'nan':
+                tCell = datetime.strptime(self.roomSchedule.keys()[col], '%H:%M')
+                if (date < dNow) or (tCell.hour < tNow.hour) or (tCell.hour == tNow.hour and tCell.minute < tNow.minute):
                     self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(''))
-                    self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(130, 213, 130))
-                else:
-                    self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
-                    self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(255, 204, 153))
+                    self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(160, 160, 160))
 
+                    flags = self.roomScheduleTable.item(row, col).flags()
+                    flags &= ~QtCore.Qt.ItemIsSelectable
+                    flags &= ~QtCore.Qt.ItemIsEnabled
+                    self.roomScheduleTable.item(row, col).setFlags(flags)
+
+                else:
+                    if str(roomStatus) == 'nan':
+                        self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(''))
+                        self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(130, 213, 130))
+                    else:
+                        self.roomScheduleTable.setItem(row, col, QtWidgets.QTableWidgetItem(str(roomStatus)))
+                        self.roomScheduleTable.item(row, col).setBackground(QtGui.QColor(255, 204, 153))
+
+                        flags = self.roomScheduleTable.item(row, col).flags()
+                        flags &= ~QtCore.Qt.ItemIsSelectable
+                        flags &= ~QtCore.Qt.ItemIsEnabled
+                        self.roomScheduleTable.item(row, col).setFlags(flags)
 
 class CalendarUI(QtWidgets.QWidget):
     def __init__(self, mainW):
