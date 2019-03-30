@@ -7,7 +7,7 @@ module UART_tb;
 	UART UART0 (.*);
 	
 	initial begin
-		#2s $stop;
+		#40000000ns $stop;
 	end
 	
 	always
