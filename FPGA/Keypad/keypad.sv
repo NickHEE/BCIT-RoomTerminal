@@ -1,25 +1,33 @@
-// ELEX 7660 ELEX 7660 201710 Lab2 
-// 4x4 keypad decoder and LED display
-// Ed.Casas 2017-1-11
+// ELEX 7660 ELEX 7660 Final project keypad top level entity 
+// 4x4 keypad decoder, will sent out a debounced "start" pulse 
+// indicating the key is pressed, 
+// the data is send through the output " data " 
+
 
 module keypad ( output logic [3:0] kpc,  // column select, active-low
               (* altera_attribute = "-name WEAK_PULL_UP_RESISTOR ON" *)
               input logic  [3:0] kpr,  // rows, active-low w/ pull-ups
               output logic [7:0] LED, // active-low LED segments 
-              output logic [3:0] ct,   // " digit enables
+              //output logic [3:0] ct,   // " digit enables
+			  output logic [7:0] data,
+			  output logic start, ///////////////////////////////////  the debounce output ( start ) 
               input logic  reset_n, FPGA_CLK1_50 ) ;
 
    logic clk ;                  // 2kHz clock for keypad scanning
-   logic kphit ;                // a key is pressed
+   logic kphit ;
+   // a key is pressed
+   logic PB_state ;
    logic [3:0] num ;            // value of pressed key
-
-   assign ct = { {3{1'b0}}, kphit } ;
+   //logic PB_state;
+   //assign ct = { {3{1'b0}}, kphit } ;
    pll pll0 ( .inclk0(FPGA_CLK1_50), .c0(clk) ) ;
 
    // instantiate your modules here...
    colseq colseq_0 (.*) ; 
 	decode7 decode7_0 (.*);
 	kpdecode kpdecode_0 (.*);
+	debounce2 debounce2_0(.*);
+	
 endmodule
 
 

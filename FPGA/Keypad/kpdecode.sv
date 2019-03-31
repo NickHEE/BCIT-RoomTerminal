@@ -1,7 +1,8 @@
-// kpdecode.sv - ELEX 7660 pre- lab 2, this module's purpose is to 
+// kpdecode.sv - ELEX 7660 final project, this module's purpose is to 
 // to decode the position that is pressed on the keypad, and determine the 
 // correct number
-// Hsiao Yi, Lu (Ian Lu A00984995)  2019-1-24
+// num 11 is used as the state when no key is pressed. 
+// can't use num 0 because num 0 is a valid data when 0 is pressed 
 
 module kpdecode ( input logic [3:0] kpc,   // 4 bit input kpc
 		input logic [3:0] kpr,			// 4 bit input kpr
@@ -10,6 +11,20 @@ module kpdecode ( input logic [3:0] kpc,   // 4 bit input kpc
 		
 always_comb begin
 	
+	/*
+	//if ( kpr == 'b1111) 		// if no key is pressed,
+	//	num = 0;				// output "no key is pressed"
+	//else 
+		//num = 1;    // or else the a key is pressed
+		
+	if ( kpr == 'b1011) 
+		num = 3;                // works when I physically connect 1011 to [3:0} kpr 
+	//else if (kpc == 'b1011)
+		//num = 4 ;
+	//else if (kpc == 'b1101)
+		//num = 5;
+	else num = 0;
+		*/
 		
 	if ( kpr == 'b1111) 		// if no key is pressed,
 		kphit = 0;				// output "no key is pressed"
@@ -22,8 +37,8 @@ always_comb begin
 			'b1011 : num = 4;	// 2nd row
 			'b1101 : num = 7;	// 3rd row
 			'b1110 : num = 14;	// 4th row
-			default : num = 0;		// if kpr detects none of the above state, 
-								//  assign num to 0,
+			default : num = 11;		
+								
 		endcase
 	
 	else if (kpc == 'b1011) // if the 2nd column is pressed 
@@ -32,7 +47,7 @@ always_comb begin
 			'b1011 : num = 5;
 			'b1101 : num = 8;
 			'b1110 : num = 0;
-		default : num = 0;
+		default : num =11;
 		endcase
 	
 	else if (kpc == 'b1101) // if the 2nd column is pressed 
@@ -41,7 +56,7 @@ always_comb begin
 			'b1011 : num = 6;
 			'b1101 : num = 9;
 			'b1110 : num = 15;
-		default : num = 0;
+		default : num =11;
 		endcase
 
 	else if (kpc == 'b1110) // if the 2nd column is pressed 
@@ -50,14 +65,15 @@ always_comb begin
 			'b1011 : num = 11;
 			'b1101 : num = 12;
 			'b1110 : num = 13;
-		default : num = 0;
+		default : num =11;
 		endcase	
 	else 
-		num = 0;                 // added after pre-lab 
-		
+		num =11;                 
 	
+	end
+
+
 	
-	end 
 endmodule 
 
 
