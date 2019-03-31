@@ -1,10 +1,6 @@
-// colseq.sv - ELEX 7660 pre- lab 2, this module's purpose is to 
+// colseq.sv - ELEX 7660 final project, this module's purpose is to 
 // to cycle through the 4 columns on the keypad
-// Hsiao Yi, Lu (Ian Lu A00984995)  2019-1-24
-// I was doing it a different way where it was longer, 
-// more complicated that involves both always_comb and always_ff, 
-// got some ideas from my friend saying I can just do it all inside 
-// always_ff, so here it is. 
+
 
 module colseq ( input logic [3:0] kpr,     // the input is a 4 bit called kpr, the rows
 		input logic 	clk,			// the single digit input, the clk 
