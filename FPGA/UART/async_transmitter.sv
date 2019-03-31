@@ -56,8 +56,7 @@ module async_transmitter(
 			4'b1101: if(BitTick) TxD_state <= 4'b1110;  // bit 5
 			4'b1110: if(BitTick) TxD_state <= 4'b1111;  // bit 6
 			4'b1111: if(BitTick) TxD_state <= 4'b0010;  // bit 7
-			4'b0010: if(BitTick) TxD_state <= 4'b0011;  // stop1
-			4'b0011: if(BitTick) TxD_state <= 4'b0000;  // stop2
+			4'b0010: if(BitTick) TxD_state <= 4'b0000;  // stop1
 			default: if(BitTick) TxD_state <= 4'b0000;
 		endcase
 	end
