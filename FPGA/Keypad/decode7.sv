@@ -3,12 +3,15 @@
 
 
 module decode7 ( input logic [3:0] num, 
+					input logic FPGA_CLK1_50,
 					input logic PB_state , 
 					output logic [7:0]LED,
 					output logic [7:0] data, 
 					output logic start); 
 			// 4 bit input num, and 8 bit output LEDS
 			
+	logic [2:0] startState  =0; 	
+	
 	always_comb begin 
 	
 	/*
@@ -28,7 +31,7 @@ module decode7 ( input logic [3:0] num,
 	
 	*/
 		if ( PB_state ==1) begin
-		start = 1; 
+		//start = 1; 
 		case (num)
 			0 : LED = 8'b00110000;		
 			1 : LED = 8'b00110001;		
@@ -59,9 +62,40 @@ module decode7 ( input logic [3:0] num,
 	
 	else begin 
 		LED = 'b00000000; 
-		start = 0; 
+		//start = 0; 
 		data = LED; 
 		end
 		
-	end
+	end  // end the always_comb
+	
+	
+	
+	always_ff @ ( posedge FPGA_CLK1_50) begin
+	
+		case (startState) 
+			0: begin 
+				if (PB_state) begin 
+					startState <=1; 
+					start <= 1; 
+					end
+				end // waiting for push 
+			1: begin
+				startState <= 2; 
+				end
+			2: begin
+				startState <= 3; 
+				end
+			3: begin
+				startState <= 4; 
+				end
+			4: begin start <=0;
+				startState <= 5; 
+				end
+			5: if (~PB_state) 
+				startState <=0; // wait for release 
+		endcase
+	end 
+	
+	
+	
 endmodule 
