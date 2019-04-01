@@ -2,6 +2,7 @@ import sys
 import BCIT
 from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime, timedelta
+import time
 
 
 class MainWindow(QtWidgets.QStackedWidget):
@@ -20,6 +21,7 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.addWidget(self.calendarPage)
         self.addWidget(self.schedulePage)
         self.addWidget(self.loginPage)
+        self.addWidget(self.bookPage)
 
         self.startLaunchUI()
 
@@ -46,15 +48,17 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.loginPage.booking = booking
         print(booking)
 
-    def startBookUI(self, booking):
+    def startBookUI(self, booking, session):
         self.setCurrentWidget(self.bookPage)
         self.bookPage.booking = booking
-
+        self.bookPage.session = session
+        self.bookPage.updateUI()
 
 class ScheduleUI(QtWidgets.QWidget):
     def __init__(self, mainW):
         super().__init__()
 
+        self.date = None
         self.layout = QtWidgets.QVBoxLayout()
         h_box = QtWidgets.QHBoxLayout()
 
@@ -74,13 +78,23 @@ class ScheduleUI(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
     def onClick(self, item, mainW):
-        if item.flags() & QtCore.Qt.ItemIsEnabled:
-            mainW.startLoginUI((self.roomSchedule.iloc[item.row()].name[0:4],
-                                self.roomSchedule.iloc[item.row()].index[item.column()]))
+        roomNum = self.roomSchedule.iloc[item.row()].name[0:4]
+        time = self.roomSchedule.iloc[item.row()].index[item.column()]
+        maxLen = sum(1 for t in self.roomSchedule.iloc[item.row()][item.column():item.column() + 4] if type(t) is not str)
+        assert(maxLen >= 1)
+
+        prompt = QtWidgets.QMessageBox.question(self, 'Room Terminal',
+                                                'Do you want to book {} at {}?'.format(roomNum, time),
+                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                QtWidgets.QMessageBox.No)
+
+        if prompt == QtWidgets.QMessageBox.Yes and item.flags() & QtCore.Qt.ItemIsEnabled:
+            mainW.startLoginUI( (roomNum, time, self.date, maxLen) )
         else:
             pass
 
     def updateTable(self, date):
+        self.date = date
         dNow = QtCore.QDate.currentDate()
         tNow = datetime.now()
         print(date, dNow)
@@ -138,6 +152,7 @@ class CalendarUI(QtWidgets.QWidget):
 class LoginUI(QtWidgets.QWidget):
     def __init__(self, mainW):
         super().__init__()
+
         self.booking = None
         self.layout = QtWidgets.QVBoxLayout()
         h_box = QtWidgets.QHBoxLayout()
@@ -150,6 +165,7 @@ class LoginUI(QtWidgets.QWidget):
         self.passwordBox = QtWidgets.QLineEdit()
         self.passwordBox.setEchoMode(QtWidgets.QLineEdit.Password)
         self.loginBtn = QtWidgets.QPushButton('Login')
+        self.loginBtn.clicked.connect(lambda _: self.login(mainW))
         v_boxInner.addWidget(self.studentNumTxt, 1 ,alignment=QtCore.Qt.AlignCenter)
         v_boxInner.addWidget(self.studentNumBox, 3)
         v_boxInner.addWidget(self.passwordTxt, 1, alignment=QtCore.Qt.AlignCenter)
@@ -171,37 +187,71 @@ class LoginUI(QtWidgets.QWidget):
         self.layout.addLayout(h_box2)
         self.setLayout(self.layout)
 
+    def login(self, mainW):
+        try:
+            session = BCIT.BCITStudySession(login=self.studentNumBox.text(), password=self.passwordBox.text())
+        except:
+            msg = QtWidgets.QMessageBox.information(self, 'Room Terminal', 'Login Failed')
+            return
+        mainW.startBookUI(self.booking, session)
+
 
 class BookUI(QtWidgets.QWidget):
     def __init__(self, mainW):
         super().__init__()
+
+
         self.booking = None
+        self.session = None
+
         self.layout = QtWidgets.QVBoxLayout()
         h_box = QtWidgets.QHBoxLayout()
         v_boxL = QtWidgets.QVBoxLayout()
         v_boxR = QtWidgets.QVBoxLayout()
 
-        self.bookingLbl = QtWidgets.QLabel('SW1-2519-8:30')
+        self.bookingLbl = QtWidgets.QLabel()
         self.nameLbl = QtWidgets.QLabel('Optional Name:')
         self.nameBox = QtWidgets.QLineEdit('roomTerminal')
         self.bookLengthLbl = QtWidgets.QLabel("Book For:")
+
         self.bookLengthDropDown = QtWidgets.QComboBox()
-        self.bookLengthDropDown.addItem("0:30")
+        self.bookLengthTimes = ['0:30', '1:00', '1:30', '2:00']
         self.bookBtn = QtWidgets.QPushButton('Book')
+        self.bookBtn.clicked.connect(self.book)
 
         self.layout.addWidget(self.bookingLbl)
         self.layout.addLayout(h_box)
-        h_box.addLayout(v_boxL)
+        h_box.addLayout(v_boxL,1)
         v_boxL.addWidget(self.nameLbl)
         v_boxL.addWidget(self.nameBox)
-        h_box.addLayout(v_boxR)
+        h_box.addLayout(v_boxR,1)
         v_boxR.addWidget(self.bookLengthLbl)
         v_boxR.addWidget(self.bookLengthDropDown)
         self.layout.addWidget(self.bookBtn, alignment=QtCore.Qt.AlignCenter)
         self.setLayout(self.layout)
 
-        def setLabelTxt(booking):
-            self.bookingLbl.setText('SW1-{}-{}'.format(booking[0], booking[1]))
+    def updateUI(self):
+        self.bookLengthDropDown.clear()
+        self.bookingLbl.setText('SW1-{} - {}'.format(self.booking[0], self.booking[1]))
+        for t in range (0, self.booking[3]):
+            self.bookLengthDropDown.addItem(self.bookLengthTimes[t])
+        print(self.bookLengthDropDown.currentIndex())
+
+    def book(self):
+        room = 'SW1-' + self.booking[0]
+        t = self.booking[1]
+        d = self.booking[2]
+        l = (self.bookLengthDropDown.currentIndex()+1) * 30
+
+        tBooking = datetime(year=d.year(),
+                            month=d.month(),
+                            day=d.day(),
+                            hour=int(t[0:2]), minute=int(t[3:4]))
+
+        booking = BCIT.Booking(date=tBooking, length=l, room=room, user=self.session.loginData["NewUserName"])
+        print(booking)
+        self.session.book(booking)
+
 
 class LaunchUI(QtWidgets.QWidget):
     def __init__(self, room, mainW):
