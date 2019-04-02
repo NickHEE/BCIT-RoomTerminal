@@ -149,16 +149,16 @@ set_location_assignment PIN_AH4 -to kpc[3]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to kpc[3]
 set_location_assignment PIN_AG5 -to GPIO1GPIO[15]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1GPIO[15]
-set_location_assignment PIN_AH3 -to GPIO1GPIO[16]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1GPIO[16]
+set_location_assignment PIN_AH3 -to start
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to start
 set_location_assignment PIN_AH2 -to GPIO1GPIO[17]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1GPIO[17]
-set_location_assignment PIN_AF4 -to GPIO1GPIO[18]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1GPIO[18]
+set_location_assignment PIN_AF4 -to kphit
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to kphit
 set_location_assignment PIN_AG6 -to GPIO1GPIO[19]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1GPIO[19]
-set_location_assignment PIN_AF5 -to GPIO1GPIO[20]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1GPIO[20]
+set_location_assignment PIN_AF5 -to lock_output
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to lock_output
 set_location_assignment PIN_AE4 -to GPIO1GPIO[21]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1GPIO[21]
 set_location_assignment PIN_T13 -to GPIO1GPIO[22]
