@@ -213,11 +213,11 @@ class LoginUI(QtWidgets.QWidget):
             if self.studentNumBox.hasFocus():
                 c = self.UART.read(1)
                 if c:
-                    self.studentNumBox.setText(self.studentNumBox.text() + c)
+                    self.studentNumBox.setText(self.studentNumBox.text() + c.decode('ascii'))
             elif self.passwordBox.hasFocus():
                 c = self.UART.read(1)
                 if c:
-                    self.passwordBox.setText(self.passwordBox.text() + c)
+                    self.passwordBox.setText(self.passwordBox.text() + c.decode('ascii'))
 
 
 class BookUI(QtWidgets.QWidget):

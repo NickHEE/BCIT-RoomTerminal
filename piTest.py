@@ -7,6 +7,6 @@ if __name__ == "__main__":
 	while True:
 		try:
 			#print(bin(ord(UART.read(1))))
-			print(UART.read(1))
+			print(UART.read(1).decode('ascii'))
 		except Exception as e:
 			print(e + '/n')
