@@ -34,6 +34,8 @@ class MainWindow(QtWidgets.QStackedWidget):
 
     def backToScheduleUI(self):
         self.setCurrentWidget(self.schedulePage)
+        if os.name == 'posix':
+            self.loginPage.UART.close()
         self.show()
 
     def startCalendarUI(self):
