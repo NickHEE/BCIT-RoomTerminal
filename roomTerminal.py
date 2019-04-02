@@ -159,7 +159,7 @@ class LoginUI(QtWidgets.QWidget):
         self.booking = None
 
         if os.name == 'posix':
-            self.UART = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=0.1)
+            self.UART = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=0.1)
             self.UART.close()
             charFetcher = QtCore.QTimer(self)
             charFetcher.timeout.connect(self.getChar)

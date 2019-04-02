@@ -1,6 +1,6 @@
 import serial
 
-UART = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=2)
+UART = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=2)
 
 
 if __name__ == "__main__":
