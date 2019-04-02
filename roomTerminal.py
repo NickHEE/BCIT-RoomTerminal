@@ -231,28 +231,34 @@ class BookUI(QtWidgets.QWidget):
 
         self.layout = QtWidgets.QVBoxLayout()
         h_box = QtWidgets.QHBoxLayout()
+        h_boxB = QtWidgets.QHBoxLayout()
         v_boxL = QtWidgets.QVBoxLayout()
         v_boxR = QtWidgets.QVBoxLayout()
 
         self.bookingLbl = QtWidgets.QLabel()
+        self.bookingLbl.setFont(QtGui.QFont('Times', 22))
         self.nameLbl = QtWidgets.QLabel('Optional Name:')
         self.nameBox = QtWidgets.QLineEdit('roomTerminal')
         self.bookLengthLbl = QtWidgets.QLabel("Book For:")
 
         self.bookLengthDropDown = QtWidgets.QComboBox()
         self.bookLengthTimes = ['0:30', '1:00', '1:30', '2:00']
+        self.backBtn = QtWidgets.QPushButton('Back')
         self.bookBtn = QtWidgets.QPushButton('Book')
         self.bookBtn.clicked.connect(self.book)
 
-        self.layout.addWidget(self.bookingLbl)
-        self.layout.addLayout(h_box)
+        self.layout.addWidget(self.bookingLbl, 1, alignment=QtCore.Qt.AlignCenter)
+        self.layout.addLayout(h_box, 4)
         h_box.addLayout(v_boxL,1)
-        v_boxL.addWidget(self.nameLbl)
-        v_boxL.addWidget(self.nameBox)
+        v_boxL.addWidget(self.nameLbl, 1)
+        v_boxL.addWidget(self.nameBox, 2, alignment=QtCore.Qt.AlignVCenter)
         h_box.addLayout(v_boxR,1)
-        v_boxR.addWidget(self.bookLengthLbl)
-        v_boxR.addWidget(self.bookLengthDropDown)
-        self.layout.addWidget(self.bookBtn, alignment=QtCore.Qt.AlignCenter)
+        v_boxR.addWidget(self.bookLengthLbl, 1)
+        v_boxR.addWidget(self.bookLengthDropDown, 2, alignment=QtCore.Qt.AlignVCenter)
+        h_boxB.addWidget(self.backBtn)
+        h_boxB.addStretch()
+        h_boxB.addWidget(self.bookBtn)
+        self.layout.addLayout(h_boxB, 4)
         self.setLayout(self.layout)
 
     def updateUI(self):
