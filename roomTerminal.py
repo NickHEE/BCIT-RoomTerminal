@@ -1,7 +1,8 @@
-import sys
+import sys, os
 import BCIT
 from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime, timedelta
+import serial
 import time
 
 
@@ -46,6 +47,8 @@ class MainWindow(QtWidgets.QStackedWidget):
     def startLoginUI(self, booking):
         self.setCurrentWidget(self.loginPage)
         self.loginPage.booking = booking
+        if os.name == 'posix':
+            self.loginPage.UART.open()
         print(booking)
 
     def startBookUI(self, booking, session):
@@ -154,6 +157,14 @@ class LoginUI(QtWidgets.QWidget):
         super().__init__()
 
         self.booking = None
+
+        if os.name == 'posix':
+            self.UART = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=0.1)
+            self.UART.close()
+            charFetcher = QtCore.QTimer(self)
+            charFetcher.timeout.connect(self.getChar)
+            charFetcher.start(200)
+
         self.layout = QtWidgets.QVBoxLayout()
         h_box = QtWidgets.QHBoxLayout()
         h_box2 = QtWidgets.QHBoxLayout()
@@ -193,13 +204,25 @@ class LoginUI(QtWidgets.QWidget):
         except:
             msg = QtWidgets.QMessageBox.information(self, 'Room Terminal', 'Login Failed')
             return
+        if os.name == 'posix':
+            self.UART.close()
         mainW.startBookUI(self.booking, session)
+
+    def getChar(self):
+        if self.UART.is_open:
+            if self.studentNumBox.hasFocus():
+                c = self.UART.read(1)
+                if c:
+                    self.studentNumBox.setText(self.studentNumBox.text() + c)
+            elif self.passwordBox.hasFocus():
+                c = self.UART.read(1)
+                if c:
+                    self.passwordBox.setText(self.passwordBox.text() + c)
 
 
 class BookUI(QtWidgets.QWidget):
     def __init__(self, mainW):
         super().__init__()
-
 
         self.booking = None
         self.session = None

@@ -99,7 +99,8 @@ class BCITStudySession:
             print(f"\n***Login as {self.loginData['NewUserName']} successful!***\n")
 
     def book(self, booking):
-         response = self.session.post('https://studyrooms.lib.bcit.ca/edit_entry_handler.php', data=booking.bookData)
+        response = self.session.post('https://studyrooms.lib.bcit.ca/edit_entry_handler.php', data=booking.bookData)
+        print(response.text)
 
 
 def QtGetSchedule(date):
