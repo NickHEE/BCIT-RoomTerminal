@@ -13,6 +13,8 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.resize(480, 320)
 
         self.booking = None
+        self.attachedRoom = '2519'
+
         self.schedulePage = ScheduleUI(self)
         self.launchPage = LaunchUI("2519", self)
         self.calendarPage = CalendarUI(self)
@@ -24,12 +26,37 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.addWidget(self.loginPage)
         self.addWidget(self.bookPage)
 
+        table = BCIT.QtGetSchedule(QtCore.QDate.currentDate())
+        self.attachedRoomSchedule = table.loc[self.attachedRoom+'(6)']
+        self.upadateAttachedRoomStatus()
+        self.statusTimer = QtCore.QTimer(self)
         self.startLaunchUI()
 
-    def startScheduleUI(self, date):
-        self.schedulePage.updateTable(date)
+    def upadateAttachedRoomStatus(self):
+        tNow = datetime.now()
+        hr = str(tNow.hour)
+        m = str(tNow.minute)
+        if int(hr) < 10:
+            hr = '0' + hr
+        if int(m) < 30:
+            m = '00'
+        else:
+            m = '30'
+
+        status = self.attachedRoomSchedule[hr+':'+m]
+        if status == 'nan':
+            self.launchPage.clock.setStyleSheet("background-color : rgb(174, 232, 155)")
+        else:
+            #self.launchPage.clock.setStyleSheet("background-color : rgb(174, 232, 155)")
+            self.launchPage.clock.setStyleSheet("background-color : rgb(229, 170, 112)")
+
+        # Pi LED Output Here
+
+
+    def startScheduleUI(self, date=None, update=True):
+        if update:
+            self.schedulePage.updateTable(date)
         self.setCurrentWidget(self.schedulePage)
-        print(date)
         self.show()
 
     def backToScheduleUI(self):
@@ -59,6 +86,7 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.bookPage.session = session
         self.bookPage.updateUI()
 
+
 class ScheduleUI(QtWidgets.QWidget):
     def __init__(self, mainW):
         super().__init__()
@@ -73,7 +101,8 @@ class ScheduleUI(QtWidgets.QWidget):
         self.roomScheduleTable.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.roomScheduleTable.setRowCount(13)
         self.roomScheduleTable.setColumnCount(34)
-        self.roomScheduleTable.horizontalHeader().setDefaultSectionSize(45)
+        self.roomScheduleTable.horizontalHeader().setDefaultSectionSize(52)
+        self.roomScheduleTable.verticalHeader().setDefaultSectionSize(35)
         self.roomScheduleTable.itemClicked.connect(lambda item: self.onClick(item, mainW))
 
         self.layout.addWidget(self.roomScheduleTable)
@@ -133,6 +162,7 @@ class ScheduleUI(QtWidgets.QWidget):
                         flags &= ~QtCore.Qt.ItemIsEnabled
                         self.roomScheduleTable.item(row, col).setFlags(flags)
 
+
 class CalendarUI(QtWidgets.QWidget):
     def __init__(self, mainW):
         super().__init__()
@@ -174,19 +204,33 @@ class LoginUI(QtWidgets.QWidget):
 
         self.studentNumTxt = QtWidgets.QLabel('Student Number')
         self.studentNumBox = QtWidgets.QLineEdit()
+        self.studentNumBox.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        f = self.studentNumBox.font()
+        f.setPointSize(16)
+        self.studentNumBox.setFont(f)
+        self.studentNumTxt.setFont(f)
+
         self.passwordTxt = QtWidgets.QLabel('Password')
         self.passwordBox = QtWidgets.QLineEdit()
+        self.passwordBox.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         self.passwordBox.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.passwordBox.setFont(f)
+        self.passwordTxt.setFont(f)
+
         self.loginBtn = QtWidgets.QPushButton('Login')
+        self.loginBtn.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         self.loginBtn.clicked.connect(lambda _: self.login(mainW))
-        v_boxInner.addWidget(self.studentNumTxt, 1 ,alignment=QtCore.Qt.AlignCenter)
+        f.setPointSize(14)
+        self.loginBtn.setFont(f)
+
+        v_boxInner.addWidget(self.studentNumTxt, 2 ,alignment=QtCore.Qt.AlignCenter)
         v_boxInner.addWidget(self.studentNumBox, 3)
-        v_boxInner.addWidget(self.passwordTxt, 1, alignment=QtCore.Qt.AlignCenter)
+        v_boxInner.addWidget(self.passwordTxt, 2, alignment=QtCore.Qt.AlignCenter)
         v_boxInner.addWidget(self.passwordBox, 3)
-        v_boxInner.addWidget(self.loginBtn)
+        v_boxInner.addWidget(self.loginBtn, 2)
         h_box.addLayout(v_boxInner, 1)
 
-        self.tapImg = QtGui.QPixmap('tap.png')
+        self.tapImg = QtGui.QPixmap('BCIT.png')
         self.tapImgLbl = QtWidgets.QLabel()
         self.tapImgLbl.setPixmap(self.tapImg)
         h_box.addWidget(self.tapImgLbl, 1, alignment=QtCore.Qt.AlignCenter)
@@ -208,6 +252,8 @@ class LoginUI(QtWidgets.QWidget):
             return
         if os.name == 'posix':
             self.UART.close()
+        self.studentNumBox.clear()
+        self.passwordBox.clear()
         mainW.startBookUI(self.booking, session)
 
     def getChar(self):
@@ -230,35 +276,41 @@ class BookUI(QtWidgets.QWidget):
         self.session = None
 
         self.layout = QtWidgets.QVBoxLayout()
-        h_box = QtWidgets.QHBoxLayout()
         h_boxB = QtWidgets.QHBoxLayout()
-        v_boxL = QtWidgets.QVBoxLayout()
-        v_boxR = QtWidgets.QVBoxLayout()
 
         self.bookingLbl = QtWidgets.QLabel()
         self.bookingLbl.setFont(QtGui.QFont('Times', 22))
         self.nameLbl = QtWidgets.QLabel('Optional Name:')
+        self.nameLbl.setFont(QtGui.QFont('Times', 15))
         self.nameBox = QtWidgets.QLineEdit('roomTerminal')
+        self.nameBox.setFixedWidth(150)
+        self.nameBox.setFixedHeight(40)
+        self.nameBox.setFont(QtGui.QFont('Times', 14))
         self.bookLengthLbl = QtWidgets.QLabel("Book For:")
+        self.bookLengthLbl.setFont(QtGui.QFont('Times', 15))
 
         self.bookLengthDropDown = QtWidgets.QComboBox()
+        self.bookLengthDropDown.setFixedWidth(150)
+        self.bookLengthDropDown.setFixedHeight(40)
+        self.bookLengthDropDown.setFont(QtGui.QFont('Times', 14))
         self.bookLengthTimes = ['0:30', '1:00', '1:30', '2:00']
         self.backBtn = QtWidgets.QPushButton('Back')
         self.bookBtn = QtWidgets.QPushButton('Book')
-        self.bookBtn.clicked.connect(self.book)
+        self.bookBtn.clicked.connect(lambda _: self.book(mainW))
+        self.backBtn.clicked.connect(lambda _: mainW.startScheduleUI(update=False))
+        self.bookBtn.setFixedWidth(150)
+        self.bookBtn.setFixedHeight(40)
+        self.bookBtn.setFont(QtGui.QFont('Times', 16))
 
         self.layout.addWidget(self.bookingLbl, 1, alignment=QtCore.Qt.AlignCenter)
-        self.layout.addLayout(h_box, 4)
-        h_box.addLayout(v_boxL,1)
-        v_boxL.addWidget(self.nameLbl, 1)
-        v_boxL.addWidget(self.nameBox, 2, alignment=QtCore.Qt.AlignVCenter)
-        h_box.addLayout(v_boxR,1)
-        v_boxR.addWidget(self.bookLengthLbl, 1)
-        v_boxR.addWidget(self.bookLengthDropDown, 2, alignment=QtCore.Qt.AlignVCenter)
+        self.layout.addWidget(self.nameLbl, 1, alignment=QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.nameBox, 2, alignment=QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.bookLengthLbl, 1, alignment=QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.bookLengthDropDown, 2, alignment=QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.bookBtn, 3, alignment=QtCore.Qt.AlignCenter)
         h_boxB.addWidget(self.backBtn)
         h_boxB.addStretch()
-        h_boxB.addWidget(self.bookBtn)
-        self.layout.addLayout(h_boxB, 4)
+        self.layout.addLayout(h_boxB, 3)
         self.setLayout(self.layout)
 
     def updateUI(self):
@@ -268,7 +320,7 @@ class BookUI(QtWidgets.QWidget):
             self.bookLengthDropDown.addItem(self.bookLengthTimes[t])
         print(self.bookLengthDropDown.currentIndex())
 
-    def book(self):
+    def book(self, mainW):
         room = 'SW1-' + self.booking[0]
         t = self.booking[1]
         d = self.booking[2]
@@ -280,8 +332,11 @@ class BookUI(QtWidgets.QWidget):
                             hour=int(t[0:2]), minute=int(t[3:4]))
 
         booking = BCIT.Booking(date=tBooking, length=l, room=room, user=self.session.loginData["NewUserName"])
-        print(booking)
-        self.session.book(booking)
+        if self.session.book(booking):
+            msg = QtWidgets.QMessageBox.information(self, 'Room Terminal', 'Booking Successful!')
+        else:
+            msg = QtWidgets.QMessageBox.information(self, 'Room Terminal', 'Booking failed, please try again')
+        mainW.startLaunchUI()
 
 
 class LaunchUI(QtWidgets.QWidget):
@@ -292,16 +347,18 @@ class LaunchUI(QtWidgets.QWidget):
         self.room.setFont(QtGui.QFont('Times', 24))
         self.clock = DigitalClock(5, self)
 
-        self.bookNowBtn = QtWidgets.QPushButton("Book this room")
-        self.viewBookingsBtn = QtWidgets.QPushButton("View room bookings")
+        self.viewBookingsBtn = QtWidgets.QPushButton("View Room Bookings")
+        self.viewBookingsBtn.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         self.viewBookingsBtn.clicked.connect(mainW.startCalendarUI)
+        f = self.viewBookingsBtn.font()
+        f.setPointSize(14)
+        self.viewBookingsBtn.setFont(f)
         h_box = QtWidgets.QHBoxLayout()
-        h_box.addWidget(self.bookNowBtn)
         h_box.addWidget(self.viewBookingsBtn)
 
         self.layout.addWidget(self.room, 1, alignment=QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.clock, 4)
-        self.layout.addLayout(h_box)
+        self.layout.addWidget(self.clock, 6)
+        self.layout.addLayout(h_box, 2)
 
         #self.clock = QtWidgets.QLCDNumber(7, self)
         #self.clock.display('1000')
@@ -326,5 +383,13 @@ class DigitalClock(QtWidgets.QLCDNumber):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+
+    img = QtGui.QPixmap('BCITsplash.png')
+    splash = QtWidgets.QSplashScreen(img, QtCore.Qt.WindowStaysOnTopHint)
+    splash.setMask(img.mask())
+    splash.show()
+
     main = MainWindow()
+    main.show()
+    splash.finish(main)
     sys.exit(app.exec_())

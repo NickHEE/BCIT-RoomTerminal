@@ -19,10 +19,10 @@ class BCITStudySession:
 
     def login(self, **kwargs):
         self.session.headers.update(headers)
-        res = self.session.post(urls['loginUrl'], data=self.loginData, **kwargs)
+        response = self.session.post(urls['loginUrl'], data=self.loginData, **kwargs)
 
         # Test login
-        if res.text.lower().find(self.loginData["NewUserName"].lower()) < 0:
+        if response.text.lower().find(self.loginData["NewUserName"].lower()) < 0:
             raise Exception("could not log onto BCIT '{}'"
                             " (did not find successful login string)".format(urls['loginUrl']))
         else:
@@ -30,7 +30,10 @@ class BCITStudySession:
 
     def book(self, booking):
         response = self.session.post('https://studyrooms.lib.bcit.ca/edit_entry_handler.php', data=booking.bookData)
-        print(response.text)
+        if response.text.lower().find('scheduling conflict') != -1:
+            return False
+        else:
+            return True
 
 
 def QtGetSchedule(date):
@@ -139,12 +142,3 @@ headers = {
   "Upgrade-Insecure-Requests": "1",
   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36 OPR/56.0.3051.116"
 }
-
-
-
-
-
-
-
-
-
