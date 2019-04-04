@@ -13,10 +13,10 @@ class MainWindow(QtWidgets.QStackedWidget):
         self.resize(480, 320)
 
         self.booking = None
-        self.attachedRoom = '2519'
+        self.attachedRoom = '2517'
 
         self.schedulePage = ScheduleUI(self)
-        self.launchPage = LaunchUI("2519", self)
+        self.launchPage = LaunchUI(self.attachedRoom, self)
         self.calendarPage = CalendarUI(self)
         self.loginPage = LoginUI(self)
         self.bookPage = BookUI(self)
@@ -28,11 +28,13 @@ class MainWindow(QtWidgets.QStackedWidget):
 
         table = BCIT.QtGetSchedule(QtCore.QDate.currentDate())
         self.attachedRoomSchedule = table.loc[self.attachedRoom+'(6)']
-        self.upadateAttachedRoomStatus()
+        self.updateAttachedRoomStatus()
         self.statusTimer = QtCore.QTimer(self)
+        self.statusTimer.timeout.connect(self.updateAttachedRoomStatus)
+        self.statusTimer.start(60000)
         self.startLaunchUI()
 
-    def upadateAttachedRoomStatus(self):
+    def updateAttachedRoomStatus(self):
         tNow = datetime.now()
         hr = str(tNow.hour)
         m = str(tNow.minute)
@@ -44,7 +46,7 @@ class MainWindow(QtWidgets.QStackedWidget):
             m = '30'
 
         status = self.attachedRoomSchedule[hr+':'+m]
-        if status == 'nan':
+        if str(status) == 'nan':
             self.launchPage.clock.setStyleSheet("background-color : rgb(174, 232, 155)")
         else:
             #self.launchPage.clock.setStyleSheet("background-color : rgb(174, 232, 155)")
@@ -56,6 +58,7 @@ class MainWindow(QtWidgets.QStackedWidget):
     def startScheduleUI(self, date=None, update=True):
         if update:
             self.schedulePage.updateTable(date)
+            time.sleep(0.25)
         self.setCurrentWidget(self.schedulePage)
         self.show()
 
