@@ -9,12 +9,16 @@ module keypad ( output logic [3:0] kpc,  // column select, active-low
               input logic  [3:0] kpr,  // rows, active-low w/ pull-ups
               output logic [7:0] LED, // active-low LED segments 
               //output logic [3:0] ct,   // " digit enables
+			  input logic lock,
+			  input logic unlock,
 			  output logic [7:0] data,
+			  output logic lock_output,
+			  output logic kphit,
 			  output logic start, ///////////////////////////////////  the debounce output ( start ) 
               input logic  reset_n, FPGA_CLK1_50 ) ;
 
    logic clk ;                  // 2kHz clock for keypad scanning
-   logic kphit ;
+   //logic kphit ;
    // a key is pressed
    logic PB_state ;
    logic [3:0] num ;            // value of pressed key
@@ -27,6 +31,7 @@ module keypad ( output logic [3:0] kpc,  // column select, active-low
 	decode7 decode7_0 (.*);
 	kpdecode kpdecode_0 (.*);
 	debounce2 debounce2_0(.*);
+	doorlock doorlock_0 (.*);
 	
 endmodule
 
