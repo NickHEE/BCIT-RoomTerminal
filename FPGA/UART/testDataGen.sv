@@ -6,11 +6,12 @@ module testDataGen ( input logic clk, divClk, TxD_busy,
 							  {8'b01100101},
 							  {8'b01101100},
 							  {8'b01101100},
-							  {8'b01101111}};	
-							  
+							  {8'b01101111}};
 	logic [2:0] char;
 	logic [3:0] state;
 	logic [19:0] div;
+	logic [1:0] aaaa;
+	
 	
 	always_ff @(posedge clk) begin
 		case (state)
