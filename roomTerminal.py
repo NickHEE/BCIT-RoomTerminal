@@ -15,12 +15,12 @@ if os.name == 'posix':
 
 class MainWindow(QtWidgets.QStackedWidget):
 
-    def __init__(self, led=None, roomAvailableSignal=None, roomUnavailableSignal=None):
+    def __init__(self, room='1104', led=None, roomAvailableSignal=None, roomUnavailableSignal=None):
         super().__init__()
         self.resize(480, 320)
 
         self.booking = None
-        self.attachedRoom = '2517'
+        self.attachedRoom = room
         self.led = led
         self.roomAvailableSignal = roomAvailableSignal
         self.roomUnavailableSignal = roomUnavailableSignal
@@ -59,12 +59,12 @@ class MainWindow(QtWidgets.QStackedWidget):
         if str(status) == 'nan':
             self.launchPage.clock.setStyleSheet("background-color : rgb(174, 232, 155)")
             if os.name == 'posix':
-                self.led.color(0, 1, 0)
+                self.led.color = (0, 1, 0)
                 self.roomAvailableSignal.blink(on_time=0.001, off_time=0.001, n=1)
         else:
             self.launchPage.clock.setStyleSheet("background-color : rgb(229, 170, 112)")
             if os.name == 'posix':
-                self.led.color(1, 0, 0)
+                self.led.color = (1, 0, 0)
                 self.roomUnavailableSignal.blink(on_time=0.001, off_time=0.001, n=1)
 
 
@@ -404,11 +404,18 @@ if __name__ == "__main__":
     splash = QtWidgets.QSplashScreen(img, QtCore.Qt.WindowStaysOnTopHint)
     splash.setMask(img.mask())
     splash.show()
+    try:
+        room = sys.argv[1]
+    except:
+        room = '1104'
 
     if os.name == 'posix':
-        main = MainWindow(led=led, roomAvailableSignal=roomAvailableSignal, roomUnavailableSignal=roomUnavailableSignal)
+        main = MainWindow(room=room,
+                          led=led,
+                          roomAvailableSignal=roomAvailableSignal,
+                          roomUnavailableSignal=roomUnavailableSignal)
     else:
-        main = MainWindow()
+        main = MainWindow(room=room)
     main.show()
     splash.finish(main)
     sys.exit(app.exec_())
