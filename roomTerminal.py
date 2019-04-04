@@ -5,15 +5,25 @@ from datetime import datetime, timedelta
 import serial
 import time
 
+if os.name == 'posix':
+    from gpiozero import LED, RGBLED
+    led = RGBLED(red=16, green=20, blue=21, active_high=False, initial_value=(0,0,1))
+    roomAvailableSignal = LED(5)
+    roomUnavailableSignal = LED(6)
+
+
 
 class MainWindow(QtWidgets.QStackedWidget):
 
-    def __init__(self):
+    def __init__(self, led=None, roomAvailableSignal=None, roomUnavailableSignal=None):
         super().__init__()
         self.resize(480, 320)
 
         self.booking = None
         self.attachedRoom = '2517'
+        self.led = led
+        self.roomAvailableSignal = roomAvailableSignal
+        self.roomUnavailableSignal = roomUnavailableSignal
 
         self.schedulePage = ScheduleUI(self)
         self.launchPage = LaunchUI(self.attachedRoom, self)
@@ -48,11 +58,14 @@ class MainWindow(QtWidgets.QStackedWidget):
         status = self.attachedRoomSchedule[hr+':'+m]
         if str(status) == 'nan':
             self.launchPage.clock.setStyleSheet("background-color : rgb(174, 232, 155)")
+            if os.name == 'posix':
+                self.led.color(0, 1, 0)
+                self.roomAvailableSignal.blink(on_time=0.001, off_time=0.001, n=1)
         else:
-            #self.launchPage.clock.setStyleSheet("background-color : rgb(174, 232, 155)")
             self.launchPage.clock.setStyleSheet("background-color : rgb(229, 170, 112)")
-
-        # Pi LED Output Here
+            if os.name == 'posix':
+                self.led.color(1, 0, 0)
+                self.roomUnavailableSignal.blink(on_time=0.001, off_time=0.001, n=1)
 
 
     def startScheduleUI(self, date=None, update=True):
@@ -392,7 +405,10 @@ if __name__ == "__main__":
     splash.setMask(img.mask())
     splash.show()
 
-    main = MainWindow()
+    if os.name == 'posix':
+        main = MainWindow(led=led, roomAvailableSignal=roomAvailableSignal, roomUnavailableSignal=roomUnavailableSignal)
+    else:
+        main = MainWindow()
     main.show()
     splash.finish(main)
     sys.exit(app.exec_())
