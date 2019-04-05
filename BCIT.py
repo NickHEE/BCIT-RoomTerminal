@@ -30,6 +30,7 @@ class BCITStudySession:
 
     def book(self, booking):
         print(booking.bookData)
+        print(booking.startDate.hour, booking.startdate.minute)
         response = self.session.post('https://studyrooms.lib.bcit.ca/edit_entry_handler.php', data=booking.bookData)
         #print(response.text)
         if response.text.lower().find('scheduling conflict') != -1:
