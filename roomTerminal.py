@@ -347,9 +347,11 @@ class BookUI(QtWidgets.QWidget):
         tBooking = datetime(year=d.year(),
                             month=d.month(),
                             day=d.day(),
-                            hour=int(t[0:2]), minute=int(t[3:4]))
+                            hour=int(t[0:2]), minute=int(t[3:5]))
 
-        booking = BCIT.Booking(date=tBooking, length=l, room=room, user=self.session.loginData["NewUserName"])
+        booking = BCIT.Booking(date=tBooking, length=l, room=room, user=self.session.loginData["NewUserName"],
+                               name=self.nameBox.text())
+        print(booking.startDate.hour, booking.startDate.minute)
         if self.session.book(booking):
             msg = QtWidgets.QMessageBox.information(self, 'Room Terminal', 'Booking Successful!')
         else:
