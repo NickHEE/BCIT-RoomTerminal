@@ -11,7 +11,7 @@
 
 ////////////////////////////////////////////////////////
 module async_transmitter(
-	input clk,
+	input FPGA_CLK1_50,
 	input TxD_start,
 	input [7:0] TxD_data,
 	output TxD,
