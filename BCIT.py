@@ -29,7 +29,9 @@ class BCITStudySession:
             print("\n***Login as {} successful!***\n".format(self.loginData['NewUserName']))
 
     def book(self, booking):
+        print(booking.bookData)
         response = self.session.post('https://studyrooms.lib.bcit.ca/edit_entry_handler.php', data=booking.bookData)
+        #print(response.text)
         if response.text.lower().find('scheduling conflict') != -1:
             return False
         else:
@@ -46,7 +48,8 @@ def QtGetSchedule(date):
     return table
 
 class Booking:
-    def __init__(self, date, length, room, user):
+    def __init__(self, date, length, room, user, name):
+        self.name = name
         self.length = length
         self.user = user
         self.startDate = date
@@ -76,7 +79,7 @@ class Booking:
         self.bookData['end_seconds'] = self.endSeconds
         self.bookData['rooms[]'] = self.room
         self.bookData['create_by'] = self.user
-
+        self.bookData['name'] = self.name
 
 _rooms = {
     26: 'SW1-1104',
