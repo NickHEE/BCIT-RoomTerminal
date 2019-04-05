@@ -1,5 +1,5 @@
 module baud_tick_gen(
-	input clk, enable,
+	input FPGA_CLK1_50, enable,
 	output tick  // generate a tick at the specified baud rate * oversampling
 );
 

@@ -1,4 +1,4 @@
-module UART (input logic clk,
+module UART (input logic FPGA_CLK1_50,
 			 output logic TxD);
 
 	logic TxD_start;
