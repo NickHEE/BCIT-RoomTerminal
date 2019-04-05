@@ -29,8 +29,9 @@ class BCITStudySession:
             print("\n***Login as {} successful!***\n".format(self.loginData['NewUserName']))
 
     def book(self, booking):
+        print(booking.bookData)
         response = self.session.post('https://studyrooms.lib.bcit.ca/edit_entry_handler.php', data=booking.bookData)
-        print(response.text)
+        #print(response.text)
         if response.text.lower().find('scheduling conflict') != -1:
             return False
         else:
