@@ -230,6 +230,7 @@ class LoginUI(QtWidgets.QWidget):
 
         self.passwordTxt = QtWidgets.QLabel('Password')
         self.passwordBox = QtWidgets.QLineEdit()
+        self.passwordBox.setText('Derp1337')
         self.passwordBox.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         self.passwordBox.setEchoMode(QtWidgets.QLineEdit.Password)
         self.passwordBox.setFont(f)
