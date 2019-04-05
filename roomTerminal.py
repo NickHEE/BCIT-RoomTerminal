@@ -66,6 +66,8 @@ class MainWindow(QtWidgets.QStackedWidget):
             if os.name == 'posix':
                 self.led.color = (1, 0, 0)
                 self.roomUnavailableSignal.blink(on_time=0.001, off_time=0.001, n=1)
+        
+        print(str(status))
 
 
     def startScheduleUI(self, date=None, update=True):
