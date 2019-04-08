@@ -14,8 +14,16 @@ if os.name == 'posix':
 
 
 class MainWindow(QtWidgets.QStackedWidget):
+    """Main Window that contains the currently displayed UI"""
 
     def __init__(self, room='1104', led=None, roomAvailableSignal=None, roomUnavailableSignal=None):
+        """Setup all the various UI's
+        room: BCIT SW1 room to be monitored
+        led: Pi Signal - Room status LED
+        roomAvailableSignal: Pi -> DE0-nano signal - Indicates room is currently empty
+        roomUnavailableSignal: Pi -> DE0-nanp signal - Indicates room is currently booked
+
+        """
         super().__init__()
         self.resize(480, 320)
 
