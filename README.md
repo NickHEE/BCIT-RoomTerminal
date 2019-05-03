@@ -6,7 +6,7 @@ Created by Nicholas Huttemann and Ian Lu for the ELEX 7660 final project
 
 # Operation
 
-![Block Diagram](https://raw.githubusercontent.com/NickHEE/BCIT-RoomTerminal/master/Screenshots/LaunchUI.png)
+![Block Diagram](https://raw.githubusercontent.com/NickHEE/BCIT-RoomTerminal/master/Screenshots/Block.png)
 
 # Screenshots
 
