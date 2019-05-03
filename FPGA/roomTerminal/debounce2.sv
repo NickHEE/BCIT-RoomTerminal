@@ -6,10 +6,6 @@ module debounce2(
     input kphit,  //this is the input to be debounced
     output reg PB_state  //this is the debounced switch
 );
-/*This module debounces the pushbutton PB.
- *It can be added to your project files and called as is:
- *DO NOT EDIT THIS MODULE
- */
 
 // Synchronize the switch input to the clock
 reg PB_sync_0;
